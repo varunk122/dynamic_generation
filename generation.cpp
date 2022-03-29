@@ -6,6 +6,7 @@ int main() {
     randomParticleGenerator(particles, simDomain);
     deleteParticles(particles);
     printParticlesList(particles);
+    saveToCSV(particles);
 
     return 0;
 }
