@@ -30,7 +30,119 @@ struct Domain {
 
 std::vector<Particle> particles;
 
-std::vector<std::vector<std::vector<int>>> grid;
+std::vector<std::vector<std::vector<std::vector<Particle>>>> grid;
+ 
+
+double calculateOverlap(Particle& particle1, Particle& particle2) {
+	Point3d point1 = particle1.centre;
+	Point3d point2 = particle2.centre;
+	double dist_ = sqrt(pow((point1(0) - point2(0)),2) + pow((point1(1) - point2(1)),2) + pow((point1(2) - point2(2)),2));
+	return dist_ - (particle1.radius + particle2.radius);
+}
+
+
+void addParticlesToGrid(std::vector<Particle>& particles, Domain& dom) {
+	
+	double diameter = 2 * particles[0].radius;
+	int nx_ = std::ceil((dom.second(0) - dom.first(0)) / diameter);
+	int ny_ = std::ceil((dom.second(1) - dom.first(1)) / diameter);
+	int nz_ = std::ceil((dom.second(2) - dom.first(2)) / diameter);
+
+	grid.resize(nx_);
+	for (unsigned iX = 0; iX < nx_; iX++) {
+		grid[iX].resize(ny_);
+		for(unsigned iY = 0; iY < ny_; iY++) {
+			grid[iX][iY].resize(nz_);
+		}
+	}
+
+	while (particles.size() > 0) {
+		Point3d coord_ = particles[0].centre - dom.first;
+		int idX = std::floor(coord_(0) / diameter); 
+		int idY = std::floor(coord_(1) / diameter); 
+		int idZ = std::floor(coord_(2) / diameter); 
+
+		grid[idX][idY][idZ].push_back(particles[0]);
+		std::swap(particles[0], particles[particles.size()]);
+		particles.pop_back();
+	}
+
+}
+
+void deleteOverlappingParticles(Point3d cell1, Point3d cell2, bool same_cell)  {
+
+	int nx_ = grid.size();
+	int ny_ = grid[0].size();
+	int nz_ = grid[0][0].size();
+
+	if ((cell1(0) >= nx_) || (cell1(1) >= ny_) || (cell1(2) >= nz_)) return;
+	if ((cell2(0) >= nx_) || (cell2(1) >= ny_) || (cell2(2) >= nz_)) return;
+	if ((cell2(0) < 0) || (cell2(1) < 0) || (cell2(0) < 0)) return;
+
+	std::vector<Particle>& particles_cell1_ = grid[cell1(0)][cell1(1)][cell1(2)];
+	std::vector<Particle>& particles_cell2_ = grid[cell2(0)][cell2(1)][cell2(2)];
+
+	for (unsigned i = 0; i < particles_cell1_.size(); i++) {
+		for (unsigned j =0; particles_cell2_.size(); j++) {
+			if (same_cell && (j<=i)) continue;
+
+			double overlap_ = calculateOverlap(particles_cell1_[i], particles_cell2_[j]);
+			if(overlap_ < 0) {
+				std::swap(particles_cell2_[j], particles_cell2_[particles_cell2_.size()-1]);
+				particles_cell2_.pop_back();
+				j--;
+			}
+
+		}
+	}
+}
+
+void deleteInGrid() {
+
+	int nx_ = grid.size();
+	int ny_ = grid[0].size();
+	int nz_ = grid[0][0].size();
+
+	for (unsigned iX = 0; iX < nx_ ; iX++) {
+		for (unsigned iY = 0; iY < ny_; iY++) {
+			for (unsigned iZ = 0; iZ < nz_; iZ++) {
+
+				deleteOverlappingParticles(Point3d(iX, iY, iZ), Point3d(iX, iY, iZ), true);
+				deleteOverlappingParticles(Point3d(iX, iY, iZ), Point3d(iX, iY , iZ + 1), false);
+				deleteOverlappingParticles(Point3d(iX, iY, iZ), Point3d(iX, iY - 1, iZ + 1), false);
+				deleteOverlappingParticles(Point3d(iX, iY, iZ), Point3d(iX, iY - 1, iZ), false);
+				deleteOverlappingParticles(Point3d(iX, iY, iZ), Point3d(iX, iY - 1, iZ - 1), false);
+				deleteOverlappingParticles(Point3d(iX, iY, iZ), Point3d(iX + 1, iY - 1, iZ - 1), false);
+				deleteOverlappingParticles(Point3d(iX, iY, iZ), Point3d(iX + 1, iY, iZ - 1), false);
+				deleteOverlappingParticles(Point3d(iX, iY, iZ), Point3d(iX + 1, iY + 1, iZ - 1), false);
+				deleteOverlappingParticles(Point3d(iX, iY, iZ), Point3d(iX + 1, iY - 1, iZ), false);
+				deleteOverlappingParticles(Point3d(iX, iY, iZ), Point3d(iX + 1, iY, iZ), false);
+				deleteOverlappingParticles(Point3d(iX, iY, iZ), Point3d(iX + 1, iY + 1, iZ), false);
+				deleteOverlappingParticles(Point3d(iX, iY, iZ), Point3d(iX + 1, iY - 1, iZ + 1), false);
+				deleteOverlappingParticles(Point3d(iX, iY, iZ), Point3d(iX + 1, iY, iZ + 1), false);
+				deleteOverlappingParticles(Point3d(iX, iY, iZ), Point3d(iX + 1, iY + 1, iZ + 1), false);
+			}
+		}
+	}	
+}
+
+void addParticlesToList(std::vector<Particle>& particles) {
+	if(particles.size() !=0) return;
+
+	for (unsigned iX = 0; iX < grid.size(); iX++) {
+		for	(unsigned iY =0; iY < grid[iX].size(); iY++) {
+			for (unsigned iZ =0; iZ < grid[iX][iY].size(); iZ++ ) {
+				std::vector<Particle>& p = grid[iX][iY][iZ]; 
+				while(p.size() > 0) {
+					particles.push_back(p[0]);
+					std::swap(p[0], p[p.size()-1]);
+					p.pop_back();
+				}
+			}
+		}
+	}
+}
+
 // std::unordered_map<int,std::unordered_set<std::pair<Particle,Particle>>> distance_list;
 
 double calculateSphereVolume(double& r) {
@@ -97,19 +209,12 @@ void saveToCSV(std::vector<Particle>& particles) {
 
 }
 
-double calculateOverlap(Particle& particle1, Particle& particle2) {
-	Point3d point1 = particle1.centre;
-	Point3d point2 = particle2.centre;
-	double dist_ = sqrt(pow((point1(0) - point2(0)),2) + pow((point1(1) - point2(1)),2) + pow((point1(2) - point2(2)),2));
-	return dist_ - (particle1.radius + particle2.radius);
-}
-
 void deleteParticles(std::vector<Particle>& particles) {
 	std::vector<unsigned> toDelete_;
 	for (int i =0; i < particles.size(); i++) {
 		for (int j =i+1; j <particles.size(); j++) {
 			double overlap_ = calculateOverlap(particles[i], particles[j]);
-			if( overlap_ < 0 ) {
+			if( overlap_ <= 0 && fabs(overlap_) / 2*0.05  < 1e-4 ) {
 				// particles.erase(particles.begin() + j);
 				// j--;
 				std::swap(particles[j], particles.back());
@@ -134,7 +239,7 @@ void randomParticleGenerator(std::vector<Particle>& particles, Domain& dom) {
 	std::uniform_real_distribution<double> distribution_y (dom.first(1), dom.second(1));
 	std::uniform_real_distribution<double> distribution_z (dom.first(2), dom.second(2));
 
-	while (packingFraction_ < 10) {
+	while (packingFraction_ < 2) {
 		particles.push_back(Particle(id_++, Point3d(distribution_x(generator), distribution_y(generator), distribution_z(generator)),raidus_));
 		spheresVolume_ += calculateSphereVolume(raidus_);
 		packingFraction_ = spheresVolume_/simulationVolume_;
