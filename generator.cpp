@@ -32,7 +32,9 @@ void RandomGenerator::addParticlesToGrid(std::vector<Particle>& particles, Domai
 		int idY = std::floor(coord_(1) / diameter); 
 		int idZ = std::floor(coord_(2) / diameter); 
 
-		grid[idX][idY][idZ].push_back(particles[0]);
+		if(idX < nx_ && idY < ny_ && idZ < nz_) {
+			grid[idX][idY][idZ].push_back(particles[0]);
+		}
 		std::swap(particles[0], particles[particles.size() -1]);
 		particles.pop_back();
 	}
@@ -87,7 +89,7 @@ void RandomGenerator::deleteOverlappingParticles(Point3d cell1, Point3d cell2, b
 			// printParticle(particles_cell2_[j]);
 
 			double overlap_ = calculateOverlap(particles_cell1_[i], particles_cell2_[j]);
-			if(overlap_ < 0 && fabs(overlap_) / (2*0.05)  < 1e-4 ) {
+			if(overlap_ < 0 && fabs(overlap_) / (2*0.05)  > 1e-2 ) {
 				std::swap(particles_cell2_[j], particles_cell2_[particles_cell2_.size()-1]);
 				particles_cell2_.pop_back();
 				j--;
@@ -215,7 +217,7 @@ void RandomGenerator::deleteParticles(std::vector<Particle>& particles) {
 	for (int i =0; i < particles.size(); i++) {
 		for (int j =i+1; j <particles.size(); j++) {
 			double overlap_ = calculateOverlap(particles[i], particles[j]);
-			if( overlap_ <= 0 && fabs(overlap_) / (2*0.05)  < 1e-4 ) {
+			if( overlap_ <= 0 && fabs(overlap_) / (2*0.05)  > 1e-4 ) {
 				// particles.erase(particles.begin() + j);
 				// j--;
 				std::swap(particles[j], particles.back());
@@ -228,7 +230,7 @@ void RandomGenerator::deleteParticles(std::vector<Particle>& particles) {
 
 void RandomGenerator::randomParticleGenerator(std::vector<Particle>& particles, Domain& dom) {
 	int id_ = 0;
-	double raidus_ = 0.05;
+	double raidus_ = 0.2;
 	float packingFraction_ = 0;
 	double simulationVolume_ = (dom.second(0)- dom.first(0))*(dom.second(1)- dom.first(1))*(dom.second(2)- dom.first(2));
 	double spheresVolume_ =0;
@@ -240,7 +242,7 @@ void RandomGenerator::randomParticleGenerator(std::vector<Particle>& particles, 
 	std::uniform_real_distribution<double> distribution_y (dom.first(1), dom.second(1));
 	std::uniform_real_distribution<double> distribution_z (dom.first(2), dom.second(2));
 
-	while (packingFraction_ < 2) {
+	while (packingFraction_ < 100) {
 		particles.push_back(Particle(id_++, Point3d(distribution_x(generator), distribution_y(generator), distribution_z(generator)),raidus_));
 		spheresVolume_ += calculateSphereVolume(raidus_);
 		packingFraction_ = spheresVolume_/simulationVolume_;

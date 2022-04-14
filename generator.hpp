@@ -34,11 +34,12 @@ struct Domain {
 class RandomGenerator {
 public:
 
-	std::vector<std::vector<std::vector<std::vector<Particle>>>> grid; // single-hierarchy grid which will store particles for roboust deletion algorithm
+	std::vector<std::vector<std::vector<std::vector<Particle>>>> grid; //single-hierarchy grid which will store particles for roboust deletion algorithm
 
 	RandomGenerator();
 
 	void randomParticleGenerator(std::vector<Particle>& particles, Domain& dom);
+
 	void addParticlesToGrid(std::vector<Particle>& particles, Domain& dom);
 	void addParticlesToList(std::vector<Particle>& particles);
 	void deleteParticles(std::vector<Particle>& particles);
