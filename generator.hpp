@@ -8,6 +8,8 @@
 
 
 typedef Eigen::Vector3d Point3d;
+typedef Eigen::Vector3i Point3i;
+
 #define PI 3.14159265358979323846
 
 
@@ -35,6 +37,7 @@ class RandomGenerator {
 public:
 
 	std::vector<std::vector<std::vector<std::vector<Particle>>>> grid; //single-hierarchy grid which will store particles for roboust deletion algorithm
+	unsigned ID;
 
 	RandomGenerator();
 
@@ -56,4 +59,13 @@ public:
 	void printParticle(Particle& particle);
 	void printGrid();
 	void saveToCSV(std::vector<Particle>& particles);
+
+	void newDeleteOverlappingParticles(int overlap_count);
+	bool checkIfOverlapping(Point3i cell, Particle particle, int overlap_count);
+	int checkIfOverlappingWithParticlesInCell(Point3i cell, Particle particle);
+	unsigned emptyCellsCount();
+	unsigned totalCellsInGrid();
+	void addParticlesInEmptyCells();
+
+
 };
