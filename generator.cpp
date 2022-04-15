@@ -67,6 +67,7 @@ void RandomGenerator::printGrid() {
 
 }
 
+
 unsigned RandomGenerator::totalCellsInGrid() {
 	unsigned nx_ = grid.size();
 	unsigned ny_ = grid[0].size();
@@ -104,7 +105,7 @@ void RandomGenerator::addParticlesInEmptyCells() {
 	int ny_ = grid[0].size();
 	int nz_ = grid[0][0].size();
 
-	double radius_ = 0.05;
+	// double radius_ = 0.02;
 
 	for (unsigned iX = 0; iX < nx_ ; iX++) {
 		for (unsigned iY = 0; iY < ny_; iY++) {
@@ -119,6 +120,7 @@ void RandomGenerator::addParticlesInEmptyCells() {
 	}
 
 }
+
 int RandomGenerator::checkIfOverlappingWithParticlesInCell(Point3i cell, Particle particle) {
 
 	int nx_ = grid.size();
@@ -135,7 +137,7 @@ int RandomGenerator::checkIfOverlappingWithParticlesInCell(Point3i cell, Particl
 	for (unsigned i = 0; i < cell_particles.size(); i++) {
 			if(cell_particles[i].id == particle.id) continue;
 			double overlap_ = calculateOverlap(cell_particles[i], particle);
-			if(overlap_ < 0 && fabs(overlap_) / (2*0.05)  > 1e-2 ) {
+			if(overlap_ < 0 && fabs(overlap_) / (2*radius_)  > 1e-4 ) {
 				overlaps_++;
 			}
 	}
@@ -160,7 +162,7 @@ bool RandomGenerator::checkIfOverlapping(Point3i cell, Particle particle, int ov
 				int z_ = z + dz;
 				// if(dx == 0 && dy ==0 && dz == 0) continue;
 				total_overlaps += checkIfOverlappingWithParticlesInCell(Point3i(x_,y_,z_), particle);
-					if (total_overlaps > overlap_count) return true;
+					if (total_overlaps >= overlap_count) return true;
 				
 			}
 		}
@@ -195,7 +197,7 @@ void  RandomGenerator::newDeleteOverlappingParticles(int overlap_count) {
 	}
 
 }
-void RandomGenerator::deleteOverlappingParticles(Point3d cell1, Point3d cell2, bool same_cell)  {
+void RandomGenerator::deleteOverlappingParticles(Point3i cell1, Point3i cell2, bool same_cell, double overlap)  {
 
 	int nx_ = grid.size();
 	int ny_ = grid[0].size();
@@ -217,7 +219,7 @@ void RandomGenerator::deleteOverlappingParticles(Point3d cell1, Point3d cell2, b
 			// printParticle(particles_cell2_[j]);
 
 			double overlap_ = calculateOverlap(particles_cell1_[i], particles_cell2_[j]);
-			if(overlap_ < 0 && fabs(overlap_) / (2*0.05)  > 1e-4 ) {
+			if(overlap_ < 0 && fabs(overlap_) / (2.0*radius_)  >= overlap ) {
 				std::swap(particles_cell2_[j], particles_cell2_[particles_cell2_.size()-1]);
 				particles_cell2_.pop_back();
 				j--;
@@ -227,7 +229,7 @@ void RandomGenerator::deleteOverlappingParticles(Point3d cell1, Point3d cell2, b
 	}
 }
 
-void RandomGenerator::deleteInGrid() {
+void RandomGenerator::deleteInGrid(double overlap) {
 
 	int nx_ = grid.size();
 	int ny_ = grid[0].size();
@@ -237,20 +239,20 @@ void RandomGenerator::deleteInGrid() {
 		for (unsigned iY = 0; iY < ny_; iY++) {
 			for (unsigned iZ = 0; iZ < nz_; iZ++) {
 
-				deleteOverlappingParticles(Point3d(iX, iY, iZ), Point3d(iX, iY, iZ), true);
-				deleteOverlappingParticles(Point3d(iX, iY, iZ), Point3d(iX, iY , iZ + 1), false);
-				deleteOverlappingParticles(Point3d(iX, iY, iZ), Point3d(iX, iY - 1, iZ + 1), false);
-				deleteOverlappingParticles(Point3d(iX, iY, iZ), Point3d(iX, iY - 1, iZ), false);
-				deleteOverlappingParticles(Point3d(iX, iY, iZ), Point3d(iX, iY - 1, iZ - 1), false);
-				deleteOverlappingParticles(Point3d(iX, iY, iZ), Point3d(iX + 1, iY - 1, iZ - 1), false);
-				deleteOverlappingParticles(Point3d(iX, iY, iZ), Point3d(iX + 1, iY, iZ - 1), false);
-				deleteOverlappingParticles(Point3d(iX, iY, iZ), Point3d(iX + 1, iY + 1, iZ - 1), false);
-				deleteOverlappingParticles(Point3d(iX, iY, iZ), Point3d(iX + 1, iY - 1, iZ), false);
-				deleteOverlappingParticles(Point3d(iX, iY, iZ), Point3d(iX + 1, iY, iZ), false);
-				deleteOverlappingParticles(Point3d(iX, iY, iZ), Point3d(iX + 1, iY + 1, iZ), false);
-				deleteOverlappingParticles(Point3d(iX, iY, iZ), Point3d(iX + 1, iY - 1, iZ + 1), false);
-				deleteOverlappingParticles(Point3d(iX, iY, iZ), Point3d(iX + 1, iY, iZ + 1), false);
-				deleteOverlappingParticles(Point3d(iX, iY, iZ), Point3d(iX + 1, iY + 1, iZ + 1), false);
+				deleteOverlappingParticles(Point3i(iX, iY, iZ), Point3i(iX, iY, iZ), true, overlap);
+				deleteOverlappingParticles(Point3i(iX, iY, iZ), Point3i(iX, iY , iZ + 1), false, overlap);
+				deleteOverlappingParticles(Point3i(iX, iY, iZ), Point3i(iX, iY - 1, iZ + 1), false, overlap);
+				deleteOverlappingParticles(Point3i(iX, iY, iZ), Point3i(iX, iY - 1, iZ), false, overlap);
+				deleteOverlappingParticles(Point3i(iX, iY, iZ), Point3i(iX, iY - 1, iZ - 1), false, overlap);
+				deleteOverlappingParticles(Point3i(iX, iY, iZ), Point3i(iX + 1, iY - 1, iZ - 1), false, overlap);
+				deleteOverlappingParticles(Point3i(iX, iY, iZ), Point3i(iX + 1, iY, iZ - 1), false, overlap);
+				deleteOverlappingParticles(Point3i(iX, iY, iZ), Point3i(iX + 1, iY + 1, iZ - 1), false, overlap);
+				deleteOverlappingParticles(Point3i(iX, iY, iZ), Point3i(iX + 1, iY - 1, iZ), false, overlap);
+				deleteOverlappingParticles(Point3i(iX, iY, iZ), Point3i(iX + 1, iY, iZ), false, overlap);
+				deleteOverlappingParticles(Point3i(iX, iY, iZ), Point3i(iX + 1, iY + 1, iZ), false, overlap);
+				deleteOverlappingParticles(Point3i(iX, iY, iZ), Point3i(iX + 1, iY - 1, iZ + 1), false, overlap);
+				deleteOverlappingParticles(Point3i(iX, iY, iZ), Point3i(iX + 1, iY, iZ + 1), false, overlap);
+				deleteOverlappingParticles(Point3i(iX, iY, iZ), Point3i(iX + 1, iY + 1, iZ + 1), false, overlap);
 
 			}
 		}
@@ -356,23 +358,49 @@ void RandomGenerator::deleteParticles(std::vector<Particle>& particles) {
 	}
 }
 
+void RandomGenerator::overlapAnalysis(std::vector<Particle>& particles) {
+	double min_overlap = INT_MAX;
+	double max_overlap = INT_MIN;
+	double total_overlap = 0;
+	int count = 0;
+	for (int i =0; i< particles.size(); i++) {
+		for (int j = i + 1; j< particles.size(); j++) {
+			double overlap_ = calculateOverlap(particles[i], particles[j]);
+			if(overlap_ < 0) {
+				overlap_ = fabs(overlap_);
+				if(overlap_ < 0.0001) continue;
+				total_overlap += overlap_;
+				count++;
+				min_overlap = std::min(min_overlap,overlap_);
+				max_overlap = std::max(max_overlap, overlap_);
+			}
+		}
+	}
+	
+	std::cout << "max_overlap: " << max_overlap << " min_overlap: " << min_overlap << " avg_overlap: " << total_overlap / (count) << std::endl;
+	std::cout << "total overlapping particles: " << count*2 << std::endl;
+	std::cout << "total particles: " << particles.size() << std::endl; 
+}
+
 void RandomGenerator::randomParticleGenerator(std::vector<Particle>& particles, Domain& dom) {
 	int id_ = 0;
-	double raidus_ = 0.05;
+	// double raidus_ = 0.02;
 	float packingFraction_ = 0;
 	double simulationVolume_ = (dom.second(0)- dom.first(0))*(dom.second(1)- dom.first(1))*(dom.second(2)- dom.first(2));
 	double spheresVolume_ =0;
 
 	// uniform real distribution
 
-	std::default_random_engine generator;
-	std::uniform_real_distribution<double> distribution_x (dom.first(0), dom.second(0));
-	std::uniform_real_distribution<double> distribution_y (dom.first(1), dom.second(1));
-	std::uniform_real_distribution<double> distribution_z (dom.first(2), dom.second(2));
+	std::random_device rd;
+	
+	std::default_random_engine generator(rd());
+	std::uniform_real_distribution<double> distribution_x (dom.first(0) + radius_, dom.second(0) - radius_);
+	std::uniform_real_distribution<double> distribution_y (dom.first(1) + radius_, dom.second(1) - radius_);
+	std::uniform_real_distribution<double> distribution_z (dom.first(2) + radius_, dom.second(2) - radius_);
 
-	while (packingFraction_ < 10) {
-		particles.push_back(Particle(id_++, Point3d(distribution_x(generator), distribution_y(generator), distribution_z(generator)),raidus_));
-		spheresVolume_ += calculateSphereVolume(raidus_);
+	while (packingFraction_ < 20) {
+		particles.push_back(Particle(id_++, Point3d(distribution_x(generator), distribution_y(generator), distribution_z(generator)),radius_));
+		spheresVolume_ += calculateSphereVolume(radius_);
 		packingFraction_ = spheresVolume_/simulationVolume_;
 	}
 
