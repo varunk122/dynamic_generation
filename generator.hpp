@@ -38,7 +38,8 @@ public:
 
 	std::vector<std::vector<std::vector<std::vector<Particle>>>> grid; //single-hierarchy grid which will store particles for roboust deletion algorithm
 	unsigned ID;
-	double radius_ = 0.05;
+	double radius_ = 0.5;
+	double insertion_pf_ = 5;
 
 	RandomGenerator();
 

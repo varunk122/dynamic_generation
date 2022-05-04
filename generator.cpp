@@ -394,11 +394,11 @@ void RandomGenerator::randomParticleGenerator(std::vector<Particle>& particles, 
 	std::random_device rd;
 	
 	std::default_random_engine generator(rd());
-	std::uniform_real_distribution<double> distribution_x (dom.first(0) + radius_, dom.second(0) - radius_);
-	std::uniform_real_distribution<double> distribution_y (dom.first(1) + radius_, dom.second(1) - radius_);
-	std::uniform_real_distribution<double> distribution_z (dom.first(2) + radius_, dom.second(2) - radius_);
+	std::uniform_real_distribution<double> distribution_x (dom.first(0) + radius_ , dom.second(0) - radius_ );
+	std::uniform_real_distribution<double> distribution_y (dom.first(1) + radius_ , dom.second(1) - radius_ );
+	std::uniform_real_distribution<double> distribution_z (dom.first(2) + radius_ , dom.second(2) - radius_ );
 
-	while (packingFraction_ < 20) {
+	while (packingFraction_ < insertion_pf_) {
 		particles.push_back(Particle(id_++, Point3d(distribution_x(generator), distribution_y(generator), distribution_z(generator)),radius_));
 		spheresVolume_ += calculateSphereVolume(radius_);
 		packingFraction_ = spheresVolume_/simulationVolume_;
