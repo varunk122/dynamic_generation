@@ -347,7 +347,7 @@ void RandomGenerator::deleteParticles(std::vector<Particle>& particles) {
 	for (int i =0; i < particles.size(); i++) {
 		for (int j =i+1; j <particles.size(); j++) {
 			double overlap_ = calculateOverlap(particles[i], particles[j]);
-			if( overlap_ <= 0 && fabs(overlap_) / (2*0.05)  < 1e-4 ) {
+			if( overlap_ <= 0 &&  fabs(overlap_) / (2*radius_)  > 1e-4 ) {
 				// particles.erase(particles.begin() + j);
 				// j--;
 				std::swap(particles[j], particles.back());

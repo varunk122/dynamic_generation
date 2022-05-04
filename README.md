@@ -1,8 +1,8 @@
 # dynamic_generation
 
-## dependencies
+## Dependencies
 
-* c++ eigen library - for linear algebra  ```sudo apt-get install libeigen3-dev```
+* **c++ eigen library** - for linear algebra  ```sudo apt-get install libeigen3-dev```
   
 ## Build
 

@@ -104,7 +104,7 @@ int main(int argc, char *argv[]) {
     generator.addParticlesToList(particles);
     std::cout << "Packing fraction 2 overlap: " << generator.calculatePackingFraction(particles,simDomain) << std::endl;
     generator.addParticlesToList(particles);
-    std::cout << "Packing fraction after deleting overlap particles: " << generator.calculatePackingFraction(particles,simDomain) << std::endl;
+    // std::cout << "Packing fraction after deleting overlap particles: " << generator.calculatePackingFraction(particles,simDomain) << std::endl;
 
     generator.overlapAnalysis(particles);
 
@@ -112,7 +112,7 @@ int main(int argc, char *argv[]) {
 
     generator.newDeleteOverlappingParticles(1);
     generator.addParticlesToList(particles);
-    std::cout << "Packing fraction 1 overlap: " << generator.calculatePackingFraction(particles,simDomain) << std::endl;
+    std::cout << "Final Packing Fraction: " << generator.calculatePackingFraction(particles,simDomain) << std::endl;
     generator.addParticlesToGrid(particles, simDomain);
 
     std::cout << "Total cells: " << generator.totalCellsInGrid() << std::endl; 
