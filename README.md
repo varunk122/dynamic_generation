@@ -11,6 +11,7 @@ To build the code run the following commands -
 ```
 mkdir build 
 cd build
+cmake ..
 make
 cd ..
 chmod +x run.sh

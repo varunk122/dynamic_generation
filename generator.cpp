@@ -367,7 +367,7 @@ void RandomGenerator::overlapAnalysis(std::vector<Particle>& particles) {
 		for (int j = i + 1; j< particles.size(); j++) {
 			double overlap_ = calculateOverlap(particles[i], particles[j]);
 			if(overlap_ < 0) {
-				overlap_ = fabs(overlap_);
+				overlap_ = fabs(overlap_) / (2 * radius_);
 				if(overlap_ < 0.0001) continue;
 				total_overlap += overlap_;
 				count++;
