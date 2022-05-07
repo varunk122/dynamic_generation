@@ -407,3 +407,55 @@ void RandomGenerator::randomParticleGenerator(std::vector<Particle>& particles, 
 	ID = id_;
 	std::cout << "Total Particles added into simulation domain: " << particles.size() << std::endl;
 }
+
+
+void RandomGenerator::carefulInsertion(int max_iteration, Domain& dom) {
+
+	float diameter = radius_*2;
+
+	int nx_ = std::ceil((dom.second(0) - dom.first(0)) / diameter);
+	int ny_ = std::ceil((dom.second(1) - dom.first(1)) / diameter);
+	int nz_ = std::ceil((dom.second(2) - dom.first(2)) / diameter);
+
+	grid.resize(nx_);
+	for (unsigned iX = 0; iX < nx_; iX++) {
+		grid[iX].resize(ny_);
+		for(unsigned iY = 0; iY < ny_; iY++) {
+			grid[iX][iY].resize(nz_);
+		}
+	}
+
+	int id_ = 0;
+	int count =0;
+
+	while (count < max_iteration) {
+
+		std::random_device rd;
+		
+		std::default_random_engine generator(rd());
+		std::uniform_real_distribution<double> distribution_x (dom.first(0) + radius_ , dom.second(0) - radius_ );
+		std::uniform_real_distribution<double> distribution_y (dom.first(1) + radius_ , dom.second(1) - radius_ );
+		std::uniform_real_distribution<double> distribution_z (dom.first(2) + radius_ , dom.second(2) - radius_ );
+
+		Particle particle = Particle(id_, Point3d(distribution_x(generator), distribution_y(generator), distribution_z(generator)),radius_);
+
+		Point3d coord_ = particle.centre - dom.first;
+		int idX = std::floor(coord_(0) / diameter); 
+		int idY = std::floor(coord_(1) / diameter); 
+		int idZ = std::floor(coord_(2) / diameter); 
+
+		if(idX < nx_ && idY < ny_ && idZ < nz_) {
+			grid[idX][idY][idZ].push_back(particle);
+			if(checkIfOverlapping(Point3i(idX, idY, idZ), particle, 1)) {
+				grid[idX][idY][idZ].pop_back();
+				count ++;
+				// std::cout << "Not able to insert particle for the " << count << " time\n";
+			}
+			else {
+				id_++;
+				count = 0;
+				std::cout << "Inserted " << id_ << " particles\n";
+			}
+		}
+	}
+}

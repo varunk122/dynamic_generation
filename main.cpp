@@ -117,7 +117,7 @@ int main(int argc, char *argv[]) {
 
     std::cout << "Total cells: " << generator.totalCellsInGrid() << std::endl; 
     std::cout << "Total number of empty cells: " << generator.emptyCellsCount() << std::endl; 
-    generator.deleteInGrid(1e-4);
+    // generator.deleteInGrid(1e-4);
     // std::cout << "Total number of empty cells: " << generator.emptyCellsCount() << std::endl; 
 
     // generator.addParticlesInEmptyCells();

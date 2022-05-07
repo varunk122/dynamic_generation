@@ -71,4 +71,7 @@ public:
 	void addParticlesInEmptyCells(); // re-add particles at the centre of empty grid
 	void overlapAnalysis(std::vector<Particle>& particles); // provide maximum, minimum and average overlap
 
+	void carefulInsertion(int max_iteration, Domain& dom);
+	
+
 };

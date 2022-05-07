@@ -9,5 +9,9 @@ file(GLOB SOURCES
 )
 
 include_directories(${PROJECT_SOURCE_DIR}) 
-add_executable (${PROJECT_NAME} ${SOURCES})
+
+add_executable (${PROJECT_NAME} main.cpp generator.cpp)
 target_link_libraries (${PROJECT_NAME} Eigen3::Eigen )
+
+add_executable (insertion insertion.cpp generator.cpp)
+target_link_libraries (insertion Eigen3::Eigen )

@@ -14,28 +14,50 @@ cd build
 cmake ..
 make
 cd ..
-chmod +x run.sh
+chmod +x deletion.sh insertion.sh
 ```
 
 # Parameters
+
+For deletion algorithm - 
 
 * **simulation domain** - specify coordinates of two opposite corners of simulation domain in m
 * **radius of particles** - radius of monodisperse particles in m 
 * **insertion packing fraction** - set packing fraction for insertion algorithm
 
+For insetion algorithm - 
+
+* **simulation domain** - specify coordinates of two opposite corners of simulation domain in m
+* **radius of particles** - radius of monodisperse particles in m 
+* **maximum_iterations** - maximum iteration in which a new particle must be inserted in the simulation domain
+
+
 
 ## Run
-```
-./run.sh radius insertion_packing_fraction coordinate_1 coordinate_2
-```
 
+* Deletion - 
+```
+./deletion.sh radius insertion_packing_fraction coordinate_1 coordinate_2
+```
+* Insertion - 
+```
+./insetion.sh radius maximum_iterations coordinate_1 coordinate_2
+```
 ## Example 
 
-```./run.sh 0.5 5 0 0 0 10 10 10```
+* Deletion - 
 
-This command will run the algorithm for cubical simulation domain of edge size 10m, monodisperse particle raidus of size 0.5m with insertion packing fraction of 5.
+```./deletion.sh 0.5 5 0 0 0 10 10 10```
+
+This command will run the deletion algorithm for cubical simulation domain of edge size 10m, monodisperse particle radius of size 0.5m with insertion packing fraction of 5.
+
+* Insertion - 
+
+```./insertion.sh 0.5 10000 0 0 0 10 10 10```
+
+This command will run the insertion algorithm for cubical simulation domain of edge size 10m, monodisperse particle radius of size 0.5m with maximum iterations allowed for the insertion of particles are 10,000.
 
 ## Output
 
-* values.csv file will be generated in which contains postion and radius of all non-overlapping partilces.
-* A matlab script **plotting.m** is provided for visualization.
+* values.csv file will be generated in both the cases which contain positions and radius of all non-overlapping particles.
+* A MATLAB script **plotting.m** is provided for visualization.
